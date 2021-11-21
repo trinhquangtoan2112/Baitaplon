@@ -8,12 +8,17 @@ package com.example.testfile;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast
 
 ;import com.huawei.hms.hmsscankit.ScanUtil;
@@ -23,11 +28,13 @@ import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions;
 public class DefaultViewActivity extends Activity {
     public static final int DEFAULT_VIEW = 0x22;
     private static final int REQUEST_CODE_SCAN = 0X01;
-
+    TextView textView;
+    Button copy;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.qrcode);
+        copy =(Button)  findViewById(R.id.Copy);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             this.requestPermissions(
                     new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE},
@@ -59,6 +66,20 @@ public class DefaultViewActivity extends Activity {
             if (obj instanceof HmsScan) {
                 if (!TextUtils.isEmpty(((HmsScan) obj).getOriginalValue())) {
                     Toast.makeText(this, ((HmsScan) obj).getOriginalValue(), Toast.LENGTH_LONG).show();
+                    textView =(TextView) findViewById(R.id.ketqua);
+                    textView.setText(((HmsScan) obj).getOriginalValue());
+                    copy =(Button)  findViewById(R.id.Copy);
+                    copy.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            ClipboardManager clipboard =(ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                            ClipData clip =ClipData.newPlainText("QRcode", ((HmsScan) obj).getOriginalValue());
+                            clipboard.setPrimaryClip(clip);
+
+                            Toast.makeText(DefaultViewActivity.this, "Copied "+ ((HmsScan) obj).getOriginalValue(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
                 }
                 return;
             }
